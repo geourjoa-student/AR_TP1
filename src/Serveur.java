@@ -1,4 +1,7 @@
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,24 +17,22 @@ public class Serveur extends Thread {
 
 		try {
 			server = new ServerSocket(port);
-			
-			Socket client;
 
-			client = server.accept();
-			System.out.println("Client " + client.getInetAddress() + " connecté.\n");
-			
-			ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
-			
-			Date date = new Date();
-			
-			oos.writeObject(date);
-			
-			oos.close();
+			Socket client = server.accept();
+			ObjectInputStream in = new ObjectInputStream(client.getInputStream());
+			FileOutputStream out = new FileOutputStream(new File("/home/geourjoa/tata"));
+			byte buf[] = new byte[1024];
+			int n;
+			while ((n = in.read(buf)) != -1) {
+				out.write(buf, 0, n);
+			}
+			out.close();
+			client.close();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 
 	}
 

@@ -1,6 +1,9 @@
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -17,19 +20,25 @@ public class Client extends Thread {
 
 		try {
 			server = new Socket(serverHost, serverPort);
-			
+
 			System.out.println("Connected to " + server.getInetAddress() + "\n");
 
-			ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
+			FileInputStream inf = new FileInputStream(new File("/home/geourjoa/toto"));
+			ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+			
+			byte buf[] = new byte[1024];
+			int n;
+			while ((n = inf.read(buf)) != -1) {
+				out.write(buf, 0, n);
+			}
+			inf.close();
+			out.close();
+			server.close();
 
-			Date date = (Date) ois.readObject();
-
-			System.out.println("Server said :" + date);
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 
 	}
 
