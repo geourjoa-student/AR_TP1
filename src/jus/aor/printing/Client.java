@@ -80,9 +80,17 @@ public class Client {
 	 * @param f le fichier à imprimer
 	 */
 	private void onePrint(File f){
-		Socket soc = null;
+		Socket server = null;
+		Socket client;
 		try(InputStream fis = new FileInputStream(f)){
 			Notification ret;
+			
+			server = new Socket(host, port);
+			client=server.acc
+			
+			ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+			
+			oos.writeObject(QUERY_PRINT);
 			//-------------------------------------------------------------------------- A COMPLETER
 			if(ret == REPLY_PRINT_OK) {
 				//------------------------------------------------------------------------ A COMPLETER
