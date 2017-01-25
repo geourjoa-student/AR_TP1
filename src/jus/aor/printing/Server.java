@@ -6,7 +6,6 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import jus.aor.printing.Esclave.Slave;
 import jus.util.Formule;
 
 import static jus.aor.printing.Notification.*;
@@ -28,6 +27,9 @@ public class Server {
 	protected boolean alive = false;
 	/** le master server TCP socket */
 	protected ServerSocket serverTCPSoc;
+	
+	//Magie noire, je ne sais absolument pas à quoi cela correspond exactement
+	protected Spooler spooler;
 	/** le logger du server */
 	Logger log = Logger.getLogger("Jus.Aor.Printing.Server","jus.aor.printing.Server");
 	/**
@@ -40,30 +42,54 @@ public class Server {
 	 * le master thread TCP.
 	 */
 	private void runTCP(){
-		try{
-			Socket soc=null;
+		try {
+			Socket soc = null;
 			serverTCPSoc = new ServerSocket(port, backlog);
-			Notification protocole=null;
-			log.log(Level.INFO_1,"Server.TCP.Started",new Object[] {port,backlog});
-			while(alive) {
-				log.log(Level.INFO,"Server.TCP.Waiting");
-				try{
-					//---------------------------------------------------------------------- A COMPLETER
-				}catch(SocketException e){
-						// socket has been closed, master serverTCP will stop.
-				}catch(ArrayIndexOutOfBoundsException e){
-					TCP.writeProtocole(soc,REPLY_UNKNOWN_NOTIFICATION);
-				}catch(Exception e){
-					TCP.writeProtocole(soc,REPLY_UNKNOWN_ERROR);
+			Notification protocole = null;
+			log.log(Level.INFO_1, "Server.TCP.Started", new Object[] { port, backlog });
+			while (alive) {
+				log.log(java.util.logging.Level.INFO, "Server.TCP.Waiting");
+				try {
+					// ----------------------------------------------------------------------
+					// A COMPLETER
+					soc = serverTCPSoc.accept();
+					log.log(java.util.logging.Level.INFO, "Server.TCP.NewClientConnected from" + soc.getInetAddress());
+
+					// HANDLE THE TCP JOB HERE
+					Notification wProtocole = TCP.readProtocole(soc);
+					log.log(java.util.logging.Level.INFO, "Server.TCP.Protocole " + wProtocole.toString());
+
+					switch (wProtocole) {
+					case QUERY_PRINT:
+						JobKey wJobKey = TCP.readJobKey(soc);
+						System.out.println(wJobKey);
+						String wData = TCP.readData(soc);
+
+						TCP.writeProtocole(soc, Notification.REPLY_PRINT_OK);
+						Thread.sleep(500);
+						TCP.writeProtocole(soc, Notification.REPLY_PRINT_ENDED);
+						break;
+					default:
+						System.out.println("Not handled");
+					}
+
+				} catch (SocketException e) {
+					// socket has been closed, master serverTCP will
+					// stop.
+				} catch (ArrayIndexOutOfBoundsException e) {
+					TCP.writeProtocole(soc, Notification.REPLY_UNKNOWN_NOTIFICATION);
+				} catch (Exception e) {
+					TCP.writeProtocole(soc, Notification.REPLY_UNKNOWN_ERROR);
 				}
 			}
-			log.log(Level.INFO_1,"Server.TCP.Stopped");
+			log.log(Level.INFO_1, "Server.TCP.Stopped");
 			serverTCPSoc.close();
-		}catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
+	
 	protected void setBacklog(int backlog) {this.backlog=backlog;}
 	protected void setport(int port) {this.port=port;}
 	protected void setPoolSize(int poolSize) { this.poolSize=poolSize;}
@@ -76,13 +102,19 @@ public class Server {
 	 * 
 	 */
 	void start(){
-		//---------------------------------------------------------------------- A COMPLETER
+		alive = true;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				runTCP();
+			}
+		}).start();
 	}
 	/**
 	 * 
 	 */
 	public void stop(){
-		//---------------------------------------------------------------------- A COMPLETER		
+		alive = false;
 	}
 	/**
 	 * 
