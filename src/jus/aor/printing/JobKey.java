@@ -14,6 +14,9 @@ import java.util.Date;
 public class JobKey {
 	/** l'identification de la jvm */	
 	public String serverId;
+	
+	private static String SEPARATOR = new String("::");
+	
 	/** la date */
 	public long date;
 	/**
@@ -36,20 +39,25 @@ public class JobKey {
 	 * @param marshal le tableau de bytes de la forme textuelle
 	 */
 	public JobKey(byte[] marshal) {
-		//----------------------------------------------------------------------------- A COMPLETER
+		String wString = new String(marshal);
+		String[] wSplitted = wString.split(SEPARATOR);
+		this.serverId = wSplitted[0];
+		this.date = Long.parseLong(wSplitted[1]);
 	}
 	/**
 	 * restitue le tableau de bytes de la forme textuelle.
 	 * @return le tableau de bytes de la forme textuelle
 	 */
 	public byte[] marshal() {
-		//----------------------------------------------------------------------------- A COMPLETER
+		return toString().getBytes();
 	}
 	/**
 	 * la forme textuelle : "<<b>serverId</b>>¤<<b>date</b>>"
 	 * où <<b>X</b>> est la repésentation textuelle de l'attribut correspondant
 	 */
-	public String toString() { return (serverId+"¤"+date);}
+	public String toString() { 
+		return (serverId + SEPARATOR + date);
+	}
 	/**
 	 * L'équivalence de 2 JobKey, si jobId est vide il n'est pas pris en compte,
 	 * si date est 0 elle n'est pas prise en compte.

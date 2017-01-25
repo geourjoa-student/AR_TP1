@@ -80,30 +80,53 @@ public class Client {
 	 * @param f le fichier à imprimer
 	 */
 	private void onePrint(File f){
-		Socket server = null;
-		Socket client;
-		try(InputStream fis = new FileInputStream(f)){
-			Notification ret;
-			
-			server = new Socket(host, port);
-			client=server.acc
-			
-			ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
-			
-			oos.writeObject(QUERY_PRINT);
-			//-------------------------------------------------------------------------- A COMPLETER
-			if(ret == REPLY_PRINT_OK) {
-				//------------------------------------------------------------------------ A COMPLETER
-				// Dans le cas où tout est correct on ajoute le job à la liste des encours.
-				//	{log.log(Level.INFO_3,"Client.QueryPrint.Processing",key);
-				//	GUI.addPrintList(key);}
-			} else log.log(Level.WARNING,"Client.QueryPrint.Failed",ret.toString());
-		}catch(NumberFormatException e){
-			log.log(Level.SEVERE,"Client.QueryPrint.Port.Error",e.getMessage());
-		}catch(UnknownHostException e){
-			log.log(Level.SEVERE,"Client.QueryPrint.Remote.Error",e.getMessage());
-		}catch(IOException e){
-			log.log(Level.SEVERE,"Client.QueryPrint.IO.Error",e.getMessage()); 
+		try (InputStream fis = new FileInputStream(f)) {
+			Notification ret = null;
+			Socket wServeur;
+			// --------------------------------------------------------------------------
+			// A COMPLETER
+			try {
+				wServeur = new Socket(this.host, this.port);
+				log.log(java.util.logging.Level.INFO,
+						"Client.selectPrinter.OpenConnexion " + wServeur.getInetAddress());
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+
+			JobKey wJobKey = new JobKey();
+			try {
+				TCP.writeProtocole(wServeur, Notification.QUERY_PRINT);
+				TCP.writeJobKey(wServeur, wJobKey);
+				System.out.println(wJobKey);
+				TCP.writeData(wServeur, fis, (int) f.length());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			ret = TCP.readProtocole(wServeur);
+
+			if (ret == Notification.REPLY_PRINT_OK) {
+				// ------------------------------------------------------------------------
+				// A COMPLETER
+				// Dans le cas où tout est correct on ajoute le job à la liste
+				// des encours.
+				log.log(Level.INFO_3, "Client.QueryPrint.Processing", wJobKey);
+				GUI.addPrintList(wJobKey);
+				ret = TCP.readProtocole(wServeur);
+				if (ret == Notification.REPLY_PRINT_ENDED) {
+					GUI.removePrintList(wJobKey);
+				}
+
+			} else {
+				log.log(java.util.logging.Level.WARNING, "Client.QueryPrint.Failed", ret.toString());
+			}
+		} catch (NumberFormatException e) {
+			log.log(java.util.logging.Level.SEVERE, "Client.QueryPrint.Port.Error", e.getMessage());
+		} catch (UnknownHostException e) {
+			log.log(java.util.logging.Level.SEVERE, "Client.QueryPrint.Remote.Error", e.getMessage());
+		} catch (IOException e) {
+			log.log(java.util.logging.Level.SEVERE, "Client.QueryPrint.IO.Error", e.getMessage());
 		}
 	}
 	/**
@@ -112,7 +135,7 @@ public class Client {
 	 * @param n nombre de requêtes d'impression à faire
 	 */
 	public void queryPrint(final File f,int n) {
-		//-------------------------------------------------------------------------- A COMPLETER
+		onePrint(f);
 	}
 	/**
 	 * protocole du server status

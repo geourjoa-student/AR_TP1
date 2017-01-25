@@ -10,6 +10,7 @@ import java.io.Serializable;
  * @author Morat 
  */
 public enum Notification implements Serializable {
-	QUERY_PRINT, REPLY_PRINT_OK;
+	QUERY_JOBS, QUERY_PRINT, QUERY_STATUS, REPLY_JOBS, REPLY_PRINT_ENDED, REPLY_PRINT_ERROR, REPLY_PRINT_OK, REPLY_STATUS, REPLY_UNKNOWN_ERROR, REPLY_UNKNOWN_NOTIFICATION
 }
+
 
