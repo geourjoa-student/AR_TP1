@@ -34,6 +34,7 @@ public class Spooler extends Thread {
 	protected SpoolerGUI GUI=null;
 	/** le logger du spooler */
 	protected Logger log = Logger.getLogger("Jus.Aor.Printing.Spooler","jus.aor.printing.Spooler");
+	private Formule impressionTimeOfSize;
 	/**
 	 * La création du spooler
 	 * @param port le port de communication avec le spooler
@@ -62,11 +63,7 @@ public class Spooler extends Thread {
 		}
 		log.log(Level.INFO_1,"Spooler.Terminated");
 		GUI.dispose();
-		try{
-			//----------------------------------------------------------------------------- A COMPLETER
-		}catch(IOException e){
-			log.log(Level.SEVERE,e.getMessage());
-		}
+		
 	}
 	/**
 	 * Ajour d'un fichier dans le spooler d'impression

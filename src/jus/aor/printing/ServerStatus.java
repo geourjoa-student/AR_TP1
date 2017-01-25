@@ -31,6 +31,7 @@ public class ServerStatus{
 	 */
 	public byte[] marshal() {
 		//-------------------------------------------------------------------------- A COMPLETER
+		return null;
 	}
 	/**
 	 * la représentation textuelle de la forme : "<<b>nbJobs</b>>¤<<b>delay</b>>"
